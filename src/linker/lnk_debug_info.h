@@ -54,8 +54,8 @@ typedef struct LNK_CodeViewInput
   U64                        external_total_symbol_input_count;
   LNK_CodeViewSymbolsInput  *external_symbol_inputs;     // [exteranl_total_symbol_input_count]
   CV_SymbolListArray        *external_parsed_symbols;    // [external_count]
-  Rng1U64                  **external_ti_ranges;         // [type_server_count]
-  CV_DebugT                **external_leaves;            // [type_server_count]
+  Rng1U64                  **external_ti_ranges;         // [type_server_count][CV_TypeIndexSource_COUNT]
+  CV_DebugT                **external_leaves;            // [type_server_count][CV_TypeIndexSource_COUNT]
   U64                       *external_obj_to_ts_idx_arr; // [external_count]
   Rng1U64                    external_obj_range;
 } LNK_CodeViewInput;
@@ -112,8 +112,8 @@ typedef struct
 typedef union
 {
   struct {
-    U64 ***internal_hashes;
-    U64 ***external_hashes;
+    U64 ***internal_hashes; // [LNK_LeafLocType_Internal][internal_obj_count][CV_TypeIndexSource_TPI  ][leaf_idx]
+    U64 ***external_hashes; // [LNK_LeafLocType_External][type_server_count ][ti_source               ][leaf_idx]
   };
   U64 ***v[CV_TypeIndexSource_COUNT];
 } LNK_LeafHashes;
@@ -469,7 +469,7 @@ internal B32              lnk_match_leaf_ref              (LNK_CodeViewInput *in
 
 // leaf hashing
 internal U64  lnk_hash_cv_leaf     (LNK_CodeViewInput *input, LNK_LeafHashes *hashes, LNK_LeafLocType loc_type, U32 loc_idx, Rng1U64 *ti_ranges, CV_TypeIndex curr_ti, CV_Leaf leaf, CV_TypeIndexInfoList ti_info_list);
-internal void lnk_hash_cv_leaf_deep(Arena *arena, LNK_CodeViewInput *input, Rng1U64 *ti_ranges, CV_DebugT *leaves, LNK_LeafHashes *hashes, LNK_LeafLocType loc_type, U32 loc_idx, CV_TypeIndexInfoList ti_info_list, String8 data);
+internal void lnk_hash_cv_leaf_deep(Arena *arena, LNK_CodeViewInput *input, Rng1U64 *ti_ranges, CV_DebugT *leaves, LNK_LeafHashes *hashes, CV_TypeIndexSource ti_source, CV_TypeIndex ti, LNK_LeafLocType loc_type, U32 loc_idx, CV_TypeIndexInfoList ti_info_list, CV_Leaf leaf);
 internal U64  lnk_hash_from_leaf_ref(LNK_LeafHashes *hashes, LNK_LeafRef leaf_ref);
 
 // leaf hash table
